@@ -1,10 +1,10 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import KanbanColumn from "./KanbanColumn";
 import AddTaskDialog from "./AddTaskDialog";
+import { useToast } from "@/hooks/use-toast";
 
 export interface Task {
   id: string;
@@ -22,6 +22,8 @@ export interface Column {
 }
 
 const KanbanBoard = () => {
+  const { toast } = useToast();
+  
   const [columns, setColumns] = useState<Column[]>([
     {
       id: 'todo',
@@ -101,6 +103,11 @@ const KanbanBoard = () => {
         if (taskIndex !== -1) {
           const [task] = fromColumn.tasks.splice(taskIndex, 1);
           toColumn.tasks.push(task);
+          
+          toast({
+            title: "Task moved",
+            description: `Task moved to ${toColumn.title}`,
+          });
         }
       }
       
@@ -122,6 +129,31 @@ const KanbanBoard = () => {
           : column
       )
     );
+    
+    toast({
+      title: "Task added",
+      description: "New task has been created successfully",
+    });
+  };
+
+  const editTask = (updatedTask: Task, columnId: string) => {
+    setColumns(prevColumns =>
+      prevColumns.map(column =>
+        column.id === columnId
+          ? {
+              ...column,
+              tasks: column.tasks.map(task =>
+                task.id === updatedTask.id ? updatedTask : task
+              )
+            }
+          : column
+      )
+    );
+    
+    toast({
+      title: "Task updated",
+      description: "Task has been updated successfully",
+    });
   };
 
   const deleteTask = (taskId: string, columnId: string) => {
@@ -132,6 +164,12 @@ const KanbanBoard = () => {
           : column
       )
     );
+    
+    toast({
+      title: "Task deleted",
+      description: "Task has been removed successfully",
+      variant: "destructive",
+    });
   };
 
   const openAddTask = (columnId: string) => {
@@ -148,6 +186,7 @@ const KanbanBoard = () => {
             column={column}
             onMoveTask={moveTask}
             onDeleteTask={deleteTask}
+            onEditTask={editTask}
             onAddTask={() => openAddTask(column.id)}
           />
         ))}
