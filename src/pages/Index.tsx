@@ -3,14 +3,12 @@ import KanbanBoard from "@/components/KanbanBoard";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">TaskFlow AI Kanban</h1>
-          <p className="text-xl text-muted-foreground">Organize your tasks with AI-powered workflow management</p>
-        </div>
-        <KanbanBoard />
+    <div className="p-6">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold mb-2">Kanban Board</h1>
+        <p className="text-lg text-muted-foreground">Organize your tasks with AI-powered workflow management</p>
       </div>
+      <KanbanBoard />
     </div>
   );
 };
