@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { Settings as SettingsIcon, User, Bell, Shield, Palette, Database } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,8 +9,67 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { useProfile } from "@/hooks/useProfile";
+import { useUserSettings } from "@/hooks/useUserSettings";
 
 const Settings = () => {
+  const { profile, updateProfile } = useProfile();
+  const { settings, updateSettings } = useUserSettings();
+  
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [bio, setBio] = useState("");
+
+  // Update form when profile loads
+  useState(() => {
+    if (profile) {
+      const nameParts = profile.full_name?.split(' ') || ['', ''];
+      setFirstName(nameParts[0] || '');
+      setLastName(nameParts.slice(1).join(' ') || '');
+      setEmail(profile.email || '');
+    }
+  });
+
+  const handleSaveProfile = async () => {
+    const fullName = `${firstName} ${lastName}`.trim();
+    await updateProfile({
+      full_name: fullName,
+      email: email,
+    });
+  };
+
+  const handleNotificationChange = (type: 'email' | 'push', key: string, value: boolean) => {
+    if (!settings) return;
+    
+    if (type === 'email') {
+      updateSettings({
+        email_notifications: {
+          ...settings.email_notifications,
+          [key]: value
+        }
+      });
+    } else {
+      updateSettings({
+        push_notifications: {
+          ...settings.push_notifications,
+          [key]: value
+        }
+      });
+    }
+  };
+
+  const handlePrivacyChange = (key: string, value: boolean) => {
+    if (!settings) return;
+    
+    updateSettings({
+      privacy_settings: {
+        ...settings.privacy_settings,
+        [key]: value
+      }
+    });
+  };
+
   return (
     <div className="p-6 space-y-6">
       <div>
@@ -30,22 +90,43 @@ const Settings = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="firstName">First Name</Label>
-                <Input id="firstName" placeholder="John" />
+                <Input 
+                  id="firstName" 
+                  placeholder="John" 
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="lastName">Last Name</Label>
-                <Input id="lastName" placeholder="Doe" />
+                <Input 
+                  id="lastName" 
+                  placeholder="Doe" 
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                />
               </div>
             </div>
             
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="john.doe@example.com" />
+              <Input 
+                id="email" 
+                type="email" 
+                placeholder="john.doe@example.com" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
             
             <div className="space-y-2">
               <Label htmlFor="bio">Bio</Label>
-              <Textarea id="bio" placeholder="Tell us about yourself..." />
+              <Textarea 
+                id="bio" 
+                placeholder="Tell us about yourself..." 
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+              />
             </div>
             
             <div className="space-y-2">
@@ -63,7 +144,7 @@ const Settings = () => {
               </Select>
             </div>
             
-            <Button>Save Changes</Button>
+            <Button onClick={handleSaveProfile}>Save Changes</Button>
           </CardContent>
         </Card>
 
@@ -108,15 +189,27 @@ const Settings = () => {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="taskUpdates">Task Updates</Label>
-                  <Switch id="taskUpdates" />
+                  <Switch 
+                    id="taskUpdates" 
+                    checked={settings?.email_notifications.taskUpdates || false}
+                    onCheckedChange={(checked) => handleNotificationChange('email', 'taskUpdates', checked)}
+                  />
                 </div>
                 <div className="flex items-center justify-between">
                   <Label htmlFor="teamMentions">Team Mentions</Label>
-                  <Switch id="teamMentions" />
+                  <Switch 
+                    id="teamMentions" 
+                    checked={settings?.email_notifications.teamMentions || false}
+                    onCheckedChange={(checked) => handleNotificationChange('email', 'teamMentions', checked)}
+                  />
                 </div>
                 <div className="flex items-center justify-between">
                   <Label htmlFor="deadlineReminders">Deadline Reminders</Label>
-                  <Switch id="deadlineReminders" />
+                  <Switch 
+                    id="deadlineReminders" 
+                    checked={settings?.email_notifications.deadlineReminders || false}
+                    onCheckedChange={(checked) => handleNotificationChange('email', 'deadlineReminders', checked)}
+                  />
                 </div>
               </div>
             </div>
@@ -126,15 +219,27 @@ const Settings = () => {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="browserPush">Browser Push</Label>
-                  <Switch id="browserPush" />
+                  <Switch 
+                    id="browserPush" 
+                    checked={settings?.push_notifications.browserPush || false}
+                    onCheckedChange={(checked) => handleNotificationChange('push', 'browserPush', checked)}
+                  />
                 </div>
                 <div className="flex items-center justify-between">
                   <Label htmlFor="mobilePush">Mobile Push</Label>
-                  <Switch id="mobilePush" />
+                  <Switch 
+                    id="mobilePush" 
+                    checked={settings?.push_notifications.mobilePush || false}
+                    onCheckedChange={(checked) => handleNotificationChange('push', 'mobilePush', checked)}
+                  />
                 </div>
                 <div className="flex items-center justify-between">
                   <Label htmlFor="soundAlerts">Sound Alerts</Label>
-                  <Switch id="soundAlerts" />
+                  <Switch 
+                    id="soundAlerts" 
+                    checked={settings?.push_notifications.soundAlerts || false}
+                    onCheckedChange={(checked) => handleNotificationChange('push', 'soundAlerts', checked)}
+                  />
                 </div>
               </div>
             </div>
@@ -144,15 +249,27 @@ const Settings = () => {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="profileVisibility">Profile Visibility</Label>
-                  <Switch id="profileVisibility" />
+                  <Switch 
+                    id="profileVisibility" 
+                    checked={settings?.privacy_settings.profileVisibility || false}
+                    onCheckedChange={(checked) => handlePrivacyChange('profileVisibility', checked)}
+                  />
                 </div>
                 <div className="flex items-center justify-between">
                   <Label htmlFor="activityStatus">Activity Status</Label>
-                  <Switch id="activityStatus" />
+                  <Switch 
+                    id="activityStatus" 
+                    checked={settings?.privacy_settings.activityStatus || false}
+                    onCheckedChange={(checked) => handlePrivacyChange('activityStatus', checked)}
+                  />
                 </div>
                 <div className="flex items-center justify-between">
                   <Label htmlFor="analyticsTracking">Analytics Tracking</Label>
-                  <Switch id="analyticsTracking" />
+                  <Switch 
+                    id="analyticsTracking" 
+                    checked={settings?.privacy_settings.analyticsTracking || false}
+                    onCheckedChange={(checked) => handlePrivacyChange('analyticsTracking', checked)}
+                  />
                 </div>
               </div>
             </div>

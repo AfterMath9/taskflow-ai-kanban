@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Plus, Settings, User, LogOut } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
+import { useState } from "react";
+import AddTaskDialog from "./AddTaskDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +15,12 @@ import {
 
 const Navigation = () => {
   const { user, logout } = useAuth();
+  const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
+
+  const handleAddTask = (task: any) => {
+    // Task will be handled by the dialog
+    console.log('Task added:', task);
+  };
 
   return (
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -25,7 +33,7 @@ const Navigation = () => {
         </div>
         
         <div className="ml-auto flex items-center space-x-4">
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => setIsAddTaskOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             New Task
           </Button>
@@ -39,7 +47,7 @@ const Navigation = () => {
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <div className="flex items-center justify-start gap-2 p-2">
                 <div className="flex flex-col space-y-1 leading-none">
-                  <p className="font-medium">{user?.name}</p>
+                  <p className="font-medium">{user?.email}</p>
                   <p className="w-[200px] truncate text-sm text-muted-foreground">
                     {user?.email}
                   </p>
@@ -63,6 +71,12 @@ const Navigation = () => {
           </DropdownMenu>
         </div>
       </div>
+
+      <AddTaskDialog
+        open={isAddTaskOpen}
+        onOpenChange={setIsAddTaskOpen}
+        onAddTask={handleAddTask}
+      />
     </header>
   );
 };

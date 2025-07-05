@@ -1,5 +1,5 @@
 
-import KanbanBoard from "@/components/KanbanBoard";
+import RealKanbanBoard from "@/components/RealKanbanBoard";
 
 const Index = () => {
   return (
@@ -8,7 +8,7 @@ const Index = () => {
         <h1 className="text-3xl font-bold mb-2">Kanban Board</h1>
         <p className="text-lg text-muted-foreground">Organize your tasks with AI-powered workflow management</p>
       </div>
-      <KanbanBoard />
+      <RealKanbanBoard />
     </div>
   );
 };

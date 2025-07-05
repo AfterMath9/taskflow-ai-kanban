@@ -4,18 +4,14 @@ import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Plus } from "lucid
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useEvents } from "@/hooks/useEvents";
+import AddEventDialog from "@/components/AddEventDialog";
 
 const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [isAddEventOpen, setIsAddEventOpen] = useState(false);
+  const { events, loading, addEvent } = useEvents();
   
-  // Sample calendar events
-  const events = [
-    { id: 1, title: "Team Meeting", date: "2024-01-15", priority: "high", time: "10:00 AM" },
-    { id: 2, title: "Project Review", date: "2024-01-18", priority: "medium", time: "2:00 PM" },
-    { id: 3, title: "Sprint Planning", date: "2024-01-22", priority: "high", time: "9:00 AM" },
-    { id: 4, title: "Client Presentation", date: "2024-01-25", priority: "high", time: "3:00 PM" },
-  ];
-
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high':
@@ -46,6 +42,23 @@ const Calendar = () => {
     });
   };
 
+  const handleAddEvent = async (eventData: any) => {
+    await addEvent(eventData);
+  };
+
+  if (loading) {
+    return (
+      <div className="p-6">
+        <div className="flex items-center justify-center p-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading events...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -53,7 +66,7 @@ const Calendar = () => {
           <h1 className="text-3xl font-bold mb-2">Calendar</h1>
           <p className="text-lg text-muted-foreground">Schedule and track your project milestones</p>
         </div>
-        <Button>
+        <Button onClick={() => setIsAddEventOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
           Add Event
         </Button>
@@ -102,21 +115,38 @@ const Calendar = () => {
             <CardTitle>Upcoming Events</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {events.map(event => (
-              <div key={event.id} className="p-3 border rounded-lg hover:bg-muted/50 transition-colors">
-                <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-medium text-sm">{event.title}</h3>
-                  <Badge variant="outline" className={getPriorityColor(event.priority)}>
-                    {event.priority}
-                  </Badge>
+            {events.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No events scheduled</p>
+            ) : (
+              events.slice(0, 10).map(event => (
+                <div key={event.id} className="p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="font-medium text-sm">{event.title}</h3>
+                    <Badge variant="outline" className={getPriorityColor(event.priority)}>
+                      {event.priority}
+                    </Badge>
+                  </div>
+                  {event.description && (
+                    <p className="text-xs text-muted-foreground mb-2">{event.description}</p>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(event.start_date).toLocaleDateString()}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(event.start_date).toLocaleTimeString()}
+                  </p>
                 </div>
-                <p className="text-xs text-muted-foreground">{event.date}</p>
-                <p className="text-xs text-muted-foreground">{event.time}</p>
-              </div>
-            ))}
+              ))
+            )}
           </CardContent>
         </Card>
       </div>
+
+      <AddEventDialog
+        open={isAddEventOpen}
+        onOpenChange={setIsAddEventOpen}
+        onAddEvent={handleAddEvent}
+      />
     </div>
   );
 };

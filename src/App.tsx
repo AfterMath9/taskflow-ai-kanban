@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "./components/AuthProvider";
 import { AppSidebar } from "./components/AppSidebar";
 import Navigation from "./components/Navigation";
+import AIAssistant from "./components/AIAssistant";
 import Index from "./pages/Index";
 import Calendar from "./pages/Calendar";
 import Team from "./pages/Team";
@@ -54,6 +55,7 @@ const AppContent = () => {
             </Routes>
           </main>
         </div>
+        <AIAssistant />
       </div>
     </SidebarProvider>
   );
