@@ -30,19 +30,18 @@ const Auth = () => {
       return;
     }
 
-    try {
-      const success = await login(loginEmail, loginPassword);
-      if (success) {
-        toast({
-          title: "Welcome back!",
-          description: "You have successfully logged in.",
-        });
-      }
-    } catch (error) {
+    const { error } = await login(loginEmail, loginPassword);
+    
+    if (error) {
       toast({
         title: "Login failed",
-        description: "Please check your credentials and try again.",
+        description: error.message || "Please check your credentials and try again.",
         variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Welcome back!",
+        description: "You have successfully logged in.",
       });
     }
   };
@@ -59,19 +58,27 @@ const Auth = () => {
       return;
     }
 
-    try {
-      const success = await register(registerEmail, registerPassword, registerName);
-      if (success) {
-        toast({
-          title: "Account created!",
-          description: "Welcome to TaskFlow AI. You can now start managing your tasks.",
-        });
-      }
-    } catch (error) {
+    if (registerPassword.length < 6) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 6 characters long",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const { error } = await register(registerEmail, registerPassword, registerName);
+    
+    if (error) {
       toast({
         title: "Registration failed",
-        description: "Please try again later.",
+        description: error.message || "Please try again later.",
         variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Check your email!",
+        description: "We've sent you a confirmation link to complete your registration.",
       });
     }
   };
@@ -112,6 +119,7 @@ const Auth = () => {
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
                       disabled={loading}
+                      required
                     />
                   </div>
                   <div className="space-y-2">
@@ -123,6 +131,7 @@ const Auth = () => {
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
                       disabled={loading}
+                      required
                     />
                   </div>
                   <Button type="submit" className="w-full" disabled={loading}>
@@ -162,6 +171,7 @@ const Auth = () => {
                       value={registerName}
                       onChange={(e) => setRegisterName(e.target.value)}
                       disabled={loading}
+                      required
                     />
                   </div>
                   <div className="space-y-2">
@@ -173,6 +183,7 @@ const Auth = () => {
                       value={registerEmail}
                       onChange={(e) => setRegisterEmail(e.target.value)}
                       disabled={loading}
+                      required
                     />
                   </div>
                   <div className="space-y-2">
@@ -180,10 +191,12 @@ const Auth = () => {
                     <Input
                       id="register-password"
                       type="password"
-                      placeholder="Create a password"
+                      placeholder="Create a password (min 6 characters)"
                       value={registerPassword}
                       onChange={(e) => setRegisterPassword(e.target.value)}
                       disabled={loading}
+                      required
+                      minLength={6}
                     />
                   </div>
                   <Button type="submit" className="w-full" disabled={loading}>
