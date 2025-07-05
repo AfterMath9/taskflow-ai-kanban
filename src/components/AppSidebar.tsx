@@ -1,5 +1,5 @@
 
-import { Home, Kanban, Calendar, Users, Settings, BarChart3 } from "lucide-react";
+import { Home, Calendar, Users, Settings, BarChart3 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -14,8 +14,7 @@ import {
 } from "@/components/ui/sidebar";
 
 const navigationItems = [
-  { title: "Dashboard", url: "/", icon: Home },
-  { title: "Kanban Board", url: "/kanban", icon: Kanban },
+  { title: "Kanban Board", url: "/", icon: Home },
   { title: "Calendar", url: "/calendar", icon: Calendar },
   { title: "Team", url: "/team", icon: Users },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
@@ -32,7 +31,7 @@ export function AppSidebar() {
 
   const isActive = (path: string) => {
     if (path === "/") {
-      return location.pathname === "/";
+      return location.pathname === "/" || location.pathname === "/kanban";
     }
     return location.pathname.startsWith(path);
   };
